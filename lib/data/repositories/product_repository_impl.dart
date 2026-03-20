@@ -19,7 +19,7 @@ class ProductRepositoryImpl implements ProductRepository {
           .map(
             (m) => Product(
               id: m.id,
-              title: m.title,
+              name: m.title,
               price: m.price,
               image: m.image,
             ),
@@ -32,7 +32,7 @@ class ProductRepositoryImpl implements ProductRepository {
             .map(
               (m) => Product(
                 id: m.id,
-                title: m.title,
+                name: m.title,
                 price: m.price,
                 image: m.image,
               ),
