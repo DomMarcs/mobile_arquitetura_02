@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'core/network/http_client.dart';
 import 'data/datasources/product_remote_datasource.dart';
@@ -15,20 +16,23 @@ void main() {
   final repository = ProductRepositoryImpl(remoteDatasource, cacheDatasource);
   final viewModel = ProductViewModel(repository);
 
-  runApp(ProductApp(viewModel: viewModel));
+  runApp(
+    ChangeNotifierProvider.value(
+      value: viewModel,
+      child: const ProductApp(),
+    ),
+  );
 }
 
 class ProductApp extends StatelessWidget {
-  final ProductViewModel viewModel;
-
-  const ProductApp({super.key, required this.viewModel});
+  const ProductApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Arquitetura Flutter',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: ProductPage(viewModel: viewModel),
+      home: const ProductPage(),
     );
   }
 }
