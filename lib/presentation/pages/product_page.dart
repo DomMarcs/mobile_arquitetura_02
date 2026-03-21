@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodels/product_viewmodel.dart';
+import 'product_detail_page.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -96,8 +97,16 @@ class _ProductPageState extends State<ProductPage> {
                   errorBuilder: (context, error, stackTrace) =>
                       const Icon(Icons.image_not_supported),
                 ),
-                title: Text(product.name),
+                title: Text(product.title),
                 subtitle: Text('R\$ ${product.price.toStringAsFixed(2)}'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailPage(product: product),
+                    ),
+                  );
+                },
                 trailing: IconButton(
                   onPressed: () => vm.toggleFavorite(product.id),
                   tooltip: product.favorite

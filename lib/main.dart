@@ -6,7 +6,7 @@ import 'data/datasources/product_remote_datasource.dart';
 import 'data/datasources/product_cache_datasource.dart';
 import 'data/repositories/product_repository_impl.dart';
 import 'presentation/viewmodels/product_viewmodel.dart';
-import 'presentation/pages/product_page.dart';
+import 'presentation/pages/home_page.dart';
 
 void main() {
   final httpClient = HttpClient();
@@ -32,7 +32,7 @@ class ProductApp extends StatelessWidget {
     return MaterialApp(
       title: 'Arquitetura Flutter',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const ProductPage(),
+      home: const HomePage(),
     );
   }
 }
