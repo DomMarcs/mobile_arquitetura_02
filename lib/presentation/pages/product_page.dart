@@ -45,7 +45,7 @@ class _ProductPageState extends State<ProductPage> {
                     ElevatedButton(
                       onPressed: widget.viewModel.loadProducts,
                       child: const Text('Tentar Novamente'),
-                    )
+                    ),
                   ],
                 ),
               ),

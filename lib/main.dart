@@ -1,34 +1,20 @@
 import 'package:flutter/material.dart';
-
-import 'core/network/http_client.dart';
-import 'data/datasources/product_remote_datasource.dart';
-import 'data/datasources/product_cache_datasource.dart';
-import 'data/repositories/product_repository_impl.dart';
-import 'presentation/viewmodels/product_viewmodel.dart';
-import 'presentation/pages/product_page.dart';
+import 'screens/product_list_screen.dart';
+import 'services/product_service.dart';
 
 void main() {
-  final httpClient = HttpClient();
-  final remoteDatasource = ProductRemoteDatasource(httpClient);
-  final cacheDatasource = ProductCacheDatasource();
-  
-  final repository = ProductRepositoryImpl(remoteDatasource, cacheDatasource);
-  final viewModel = ProductViewModel(repository);
-
-  runApp(ProductApp(viewModel: viewModel));
+  runApp(const ProductApp());
 }
 
 class ProductApp extends StatelessWidget {
-  final ProductViewModel viewModel;
-
-  const ProductApp({super.key, required this.viewModel});
+  const ProductApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Arquitetura Flutter',
+      title: 'CRUD de Produtos',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: ProductPage(viewModel: viewModel),
+      home: ProductListScreen(service: ProductService()),
     );
   }
 }
