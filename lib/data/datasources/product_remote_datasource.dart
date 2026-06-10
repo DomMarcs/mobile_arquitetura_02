@@ -8,9 +8,12 @@ class ProductRemoteDatasource {
 
   Future<List<ProductModel>> getProducts() async {
     final response = await client.get(
-      'https://fakestoreapi.com/products',
+      'https://dummyjson.com/products',
     );
-    final List<dynamic> data = response.data as List<dynamic>;
-    return data.map((json) => ProductModel.fromJson(json as Map<String, dynamic>)).toList();
+    final data = response.data as Map<String, dynamic>;
+    final List<dynamic> products = data['products'] as List<dynamic>;
+    return products
+        .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 }

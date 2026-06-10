@@ -43,7 +43,7 @@ class ProductRepositoryImpl implements ProductRepository {
             )
             .toList();
       }
-      throw Failure("Não foi possível carregar os produtos");
+      throw Failure('Não foi possível carregar os produtos');
     }
   }
 }

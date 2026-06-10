@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/product_viewmodel.dart';
 import 'product_detail_page.dart';
 
@@ -17,6 +18,15 @@ class _ProductPageState extends State<ProductPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    final auth = context.read<AuthViewModel>();
+    if (!auth.isAuthenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/');
+      });
+      return;
+    }
+
     if (_didLoad) return;
     _didLoad = true;
     context.read<ProductViewModel>().loadProducts();
