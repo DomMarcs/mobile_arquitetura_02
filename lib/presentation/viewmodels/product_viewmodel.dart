@@ -27,21 +27,13 @@ class ProductViewModel extends ChangeNotifier {
   // Local getter com o nome antigo, para minimizar mudanças no resto do arquivo.
   List<Product> get _products => _state.products;
 
-  Future<void> loadProducts() async {
+  Future<void> loadProducts({bool forceRefresh = false}) async {
     _state = _state.copyWith(isLoading: true, error: null);
     notifyListeners(); // Atualiza UI para estado de carregamento.
 
     String? error;
     try {
-      final loaded = await repository.getProducts();
-      final favoriteIds =
-          _state.products.where((p) => p.favorite).map((p) => p.id).toSet();
-      for (final product in loaded) {
-        product.favorite = favoriteIds.contains(product.id);
-      }
-      debugPrint(
-        'Loaded ${loaded.length} products. Favorites kept: ${loaded.where((p) => p.favorite).length}',
-      );
+      final loaded = await repository.getProducts(forceRefresh: forceRefresh);
       _state = _state.copyWith(products: loaded);
     } catch (e) {
       error = e.toString(); // `Failure.toString()` retorna a mensagem.
@@ -53,13 +45,16 @@ class ProductViewModel extends ChangeNotifier {
     notifyListeners(); // Atualiza UI para estado final (sucesso/erro).
   }
 
-  void toggleFavorite(int id) {
+  void toggleFavorite(int id) async {
     final index = _products.indexWhere((p) => p.id == id);
     if (index == -1) return;
 
     _products[index].favorite = !_products[index].favorite;
     debugPrint('Product $id favorite => ${_products[index].favorite}');
     notifyListeners();
+
+    final favoriteIds = _products.where((p) => p.favorite).map((p) => p.id).toSet();
+    await repository.saveFavorites(favoriteIds);
   }
 
   void setShowFavoritesOnly(bool value) {

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../core/errors/failure.dart';
 import '../../core/session/session_manager.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -25,16 +26,23 @@ class AuthViewModel extends ChangeNotifier {
 
     try {
       final loggedUser = await repository.login(username, password);
-      session.saveSession(loggedUser);
+      await session.saveSession(loggedUser);
       _isLoading = false;
       notifyListeners();
       return true;
-    } catch (e) {
-      _error = 'Falha no login. Verifique usuário e senha.';
-      _isLoading = false;
-      notifyListeners();
-      return false;
+    } on AuthenticationException catch (_) {
+      _error = 'Usuário ou senha inválidos. Verifique seus dados e tente novamente.';
+    } on ServerException catch (_) {
+      _error = 'Erro no servidor. Tente novamente mais tarde.';
+    } on NetworkException catch (_) {
+      _error = 'Problema de conexão. Confira sua internet e tente novamente.';
+    } catch (_) {
+      _error = 'Não foi possível efetuar o login. Tente novamente mais tarde.';
     }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
   }
 
   void logout() {

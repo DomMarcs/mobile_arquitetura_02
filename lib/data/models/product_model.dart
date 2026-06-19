@@ -20,9 +20,20 @@ class ProductModel {
       id: json['id'] as int,
       title: json['title'] as String,
       price: (json['price'] as num).toDouble(),
-      image: json['thumbnail'] as String,
+      image: (json['thumbnail'] ?? json['image']) as String,
       description: json['description'] as String,
       category: json['category'] as String,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'price': price,
+      'image': image,
+      'description': description,
+      'category': category,
+    };
   }
 }

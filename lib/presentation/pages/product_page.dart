@@ -29,7 +29,10 @@ class _ProductPageState extends State<ProductPage> {
 
     if (_didLoad) return;
     _didLoad = true;
-    context.read<ProductViewModel>().loadProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ProductViewModel>().loadProducts();
+    });
   }
 
   @override
@@ -93,22 +96,15 @@ class _ProductPageState extends State<ProductPage> {
         }
 
         return ListView.builder(
+          padding: const EdgeInsets.only(bottom: 80),
           itemCount: vm.visibleProducts.length,
           itemBuilder: (context, index) {
             final product = vm.visibleProducts[index];
             return Card(
-              color: product.favorite ? Colors.amber.withOpacity(0.15) : null,
-              child: ListTile(
-                leading: Image.network(
-                  product.image,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.image_not_supported),
-                ),
-                title: Text(product.title),
-                subtitle: Text('R\$ ${product.price.toStringAsFixed(2)}'),
+              color: product.favorite ? Theme.of(context).colorScheme.secondaryContainer : null,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -117,15 +113,64 @@ class _ProductPageState extends State<ProductPage> {
                     ),
                   );
                 },
-                trailing: IconButton(
-                  onPressed: () => vm.toggleFavorite(product.id),
-                  tooltip: product.favorite
-                      ? 'Remover dos favoritos'
-                      : 'Favoritar',
-                  icon: Icon(
-                    product.favorite ? Icons.star : Icons.star_border,
-                    color: product.favorite ? Colors.amber : null,
-                  ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Hero(
+                      tag: 'product_image_${product.id}',
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            right: BorderSide(color: Colors.grey.shade200),
+                          ),
+                        ),
+                        child: Image.network(
+                          product.image,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.image_not_supported, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.title,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'R\$ ${product.price.toStringAsFixed(2)}',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      padding: const EdgeInsets.all(16),
+                      onPressed: () => vm.toggleFavorite(product.id),
+                      tooltip: product.favorite ? 'Remover dos favoritos' : 'Favoritar',
+                      icon: Icon(
+                        product.favorite ? Icons.favorite : Icons.favorite_border,
+                        color: product.favorite ? Colors.redAccent : Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -133,7 +178,7 @@ class _ProductPageState extends State<ProductPage> {
         );
       }(),
       floatingActionButton: FloatingActionButton(
-        onPressed: vm.loadProducts,
+        onPressed: () => vm.loadProducts(forceRefresh: true),
         child: const Icon(Icons.refresh),
       ),
     );

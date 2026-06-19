@@ -21,7 +21,7 @@ class AuthResponseModel {
       username: json['username'] as String,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
-      token: json['token'] as String,
+      token: (json['accessToken'] ?? json['token']) as String,
     );
   }
 

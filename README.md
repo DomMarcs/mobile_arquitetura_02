@@ -11,3 +11,42 @@ A interface (camada Presentation) passaria a manipular os Modelos de Dados (DTOs
 
 **4. Como essa arquitetura facilitaria a substituição da API por um banco de dados local?**
 A arquitetura facilita essa transição baseando-se no Princípio da Inversão de Dependência. O núcleo da aplicação (Domínio) define apenas o contrato (a interface `ProductRepository`). Para substituir a API por um banco local, bastaria criar um novo `LocalDatabaseDatasource` na camada Data e instanciá-lo no `ProductRepositoryImpl`. Nenhuma linha de código nas camadas de Domínio ou Presentation precisaria ser reescrita, pois elas dependem da abstração e não da implementação.
+
+---
+
+## Estrutura de Arquitetura e Organização do Projeto
+
+O projeto está estruturado utilizando conceitos de **Clean Architecture**, dividindo a aplicação em camadas bem definidas e isoladas:
+
+1. **Camada de Domínio (`lib/domain`)**:
+   - Contém as regras de negócio puras e as entidades que representam o núcleo da aplicação (ex: `Product`, `User`).
+   - Define interfaces abstratas para os repositórios (ex: `AuthRepository`, `ProductRepository`), garantindo que o domínio não dependa de frameworks ou bibliotecas externas.
+
+2. **Camada de Dados (`lib/data`)**:
+   - Implementa as interfaces do repositório (ex: `AuthRepositoryImpl`, `ProductRepositoryImpl`).
+   - Gerencia fontes de dados externas através de DataSources (`AuthRemoteDatasource`, `ProductRemoteDatasource`, `ProductCacheDatasource`).
+   - Modela dados da API usando DTOs/Modelos (ex: `ProductModel`, `AuthResponseModel`) para desserialização JSON (DummyJSON).
+
+3. **Camada de Apresentação (`lib/presentation`)**:
+   - Responsável por renderizar a interface do usuário (ex: `LoginPage`, `HomePage`, `ProductPage`, `ProductDetailPage`).
+   - Gerencia estados específicos da UI através de ViewModels (`AuthViewModel`, `ProductViewModel`), atuando como ponte entre o domínio e a visualização.
+
+4. **Camada Core (`lib/core`)**:
+   - Utilitários globais compartilhados, como o cliente HTTP genérico (`HttpClient`), classes de exceções e erros (`Failure`), e gerenciamento de persistência de sessão de usuário (`SessionManager`).
+
+---
+
+## Justificativa para a Escolha do Gerenciamento de Estado (Provider)
+
+A solução escolhida para o gerenciamento de estado e injeção de dependência neste projeto foi o pacote **Provider**, combinado com **ChangeNotifier**, pelas seguintes razões:
+
+1. **Acoplamento Fraco e Separação de Conceitos (MVVM)**:
+   - Permite que a camada de visualização (View) escute e reaja a mudanças de estado nas ViewModels sem misturar lógica de negócio com lógica de interface.
+   - As atualizações ocorrem automaticamente por meio do método `notifyListeners()`, garantindo reatividade eficiente.
+
+2. **Simplicidade e Performance**:
+   - É uma solução leve e recomendada oficialmente pela equipe do Flutter para projetos de médio porte.
+   - Evita rebuilds desnecessários utilizando seletores ou ouvintes pontuais (`context.watch` / `context.read`).
+
+3. **Facilidade de Testes**:
+   - A injeção de dependência via `Provider` permite substituir facilmente as implementações reais de repositórios por dublês de teste (Mocks/Fakes), como feito com sucesso no arquivo de testes automatizados `widget_test.dart`.
